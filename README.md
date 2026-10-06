@@ -1,36 +1,120 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# DAR DISCOVER 🌍
 
-## Getting Started
+> 🚧 **Work in Progress**
 
-First, run the development server:
+DAR DISCOVER is a tourism and activities platform designed to help people
+discover places, activities, events, food & drink venues, attractions,
+and experiences in Dar es Salaam, Tanzania.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+The project is currently under active development.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## 📌 Project Status
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**Work in Progress — Not a finished production system.**
 
-## Learn More
+The platform is being developed step by step, starting with the
+user-facing experience before moving to provider and administration
+features.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## ✨ Current Features
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- 🔐 User authentication
+- 👤 User profile and personal details
+- 📍 Location and "Near You" functionality
+- 🗺️ Map integration
+- 🔎 Discover and explore experiences
+- 🏷️ Categories
+- ⭐ Popular places and activities
+- 📅 Happening Soon
+- 💰 Explore by budget
+- ❤️ Saved experiences
+- 📝 Reviews
+- 📋 User bookings
+- 🔔 Notifications
+- 📱 Responsive user interface
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🚧 Planned Features
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- 🏢 Provider dashboard
+- ⚙️ Admin dashboard
+- 📍 Advanced location-based discovery
+- 🗺️ Advanced maps and route planning
+- 📅 Events management
+- 🎟️ Booking management
+- 💳 Payment integration
+- ⭐ Ratings and reviews management
+- 🔔 Advanced notifications
+- 📊 Provider and admin analytics
+- 👥 Provider management
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+- Next.js
+- JavaScript
+- JSX
+- Tailwind CSS
+
+### Backend
+- Next.js API Routes
+- Prisma ORM
+
+### Database
+- MariaDB
+
+### Authentication
+- HTTP-only session cookies
+- Password hashing with bcryptjs
+
+### Development Tools
+- VS Code
+- Git
+- GitHub
+- npm
+
+---
+
+## 📂 Project Structure
+
+```text
+dar-discover/
+│
+├── app/
+│   ├── api/
+│   ├── user/
+│   ├── layout.js
+│   └── globals.css
+│
+├── components/
+│   ├── Header.jsx
+│   ├── Hero.jsx
+│   ├── Categories.jsx
+│   ├── DiscoverNearYou.jsx
+│   ├── PopularInDar.jsx
+│   ├── HappeningSoon.jsx
+│   ├── ExploreByBudget.jsx
+│   ├── SpecialOffers.jsx
+│   ├── MapAndPlan.jsx
+│   └── ...
+│
+├── lib/
+│   ├── auth.jsx
+│   ├── location.jsx
+│   └── prisma.jsx
+│
+├── prisma/
+│   ├── migrations/
+│   └── schema.prisma
+│
+├── public/
+│
+├── package.json
+└── README.md
