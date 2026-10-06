@@ -77,10 +77,8 @@ export default function SpecialOffers() {
   }
 
   return (
-    <section className="border-t border-gray-100 py-14 sm:py-16 md:py-20">
-
+    <section className="border-t border-gray-100 py-8 sm:py-10 md:py-12">
       <div className="flex items-end justify-between gap-4">
-
         <div>
           <div className="flex items-center gap-2 text-green-600">
             <Sparkles size={15} />
@@ -99,11 +97,13 @@ export default function SpecialOffers() {
           </p>
         </div>
 
+        {/* SLIDER CONTROLS */}
         <div className="flex shrink-0 gap-2">
           <button
             type="button"
             onClick={() => slide("left")}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm hover:border-green-300 hover:bg-green-50 hover:text-green-700 sm:h-10 sm:w-10"
+            aria-label="Previous offers"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm transition hover:border-green-300 hover:bg-green-50 hover:text-green-700 sm:h-10 sm:w-10"
           >
             <ChevronLeft size={17} />
           </button>
@@ -111,22 +111,25 @@ export default function SpecialOffers() {
           <button
             type="button"
             onClick={() => slide("right")}
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm hover:border-green-300 hover:bg-green-50 hover:text-green-700 sm:h-10 sm:w-10"
+            aria-label="Next offers"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm transition hover:border-green-300 hover:bg-green-50 hover:text-green-700 sm:h-10 sm:w-10"
           >
             <ChevronRight size={17} />
           </button>
         </div>
       </div>
 
+      {/* OFFERS SLIDER */}
       <div
         ref={sliderRef}
-        className="no-scrollbar mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 sm:gap-5"
+        className="no-scrollbar mt-5 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 sm:gap-5"
       >
         {offers.map((offer) => (
           <article
             key={offer.title}
             className="group min-w-[300px] snap-start overflow-hidden rounded-[26px] border border-gray-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl sm:min-w-[350px] md:min-w-[380px]"
           >
+            {/* IMAGE */}
             <div className="relative h-52 overflow-hidden">
               <img
                 src={offer.image}
@@ -136,11 +139,13 @@ export default function SpecialOffers() {
 
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
 
+              {/* DISCOUNT BADGE */}
               <div className="absolute left-4 top-4 flex items-center gap-1.5 rounded-full bg-green-500 px-3 py-1.5 text-xs font-black text-white">
                 <Percent size={12} />
                 {offer.discount}
               </div>
 
+              {/* TITLE */}
               <div className="absolute bottom-4 left-4">
                 <p className="text-xs font-semibold text-white/70">
                   {offer.subtitle}
@@ -152,6 +157,7 @@ export default function SpecialOffers() {
               </div>
             </div>
 
+            {/* CONTENT */}
             <div className="p-5">
               <div className="flex items-end gap-3">
                 <span className="text-xl font-black text-green-600">
@@ -170,7 +176,7 @@ export default function SpecialOffers() {
 
               <button
                 type="button"
-                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-gray-950 px-5 py-3.5 text-sm font-black text-white hover:bg-green-600"
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gray-950 px-5 py-3.5 text-sm font-black text-white transition hover:bg-green-600"
               >
                 Book Now
                 <ArrowRight size={15} />
@@ -180,7 +186,8 @@ export default function SpecialOffers() {
         ))}
       </div>
 
-      <p className="mt-1 text-center text-[11px] text-gray-400">
+      {/* SLIDER HINT */}
+      <p className="mt-0.5 text-center text-[11px] text-gray-400">
         Swipe or use the arrows to discover more deals
       </p>
     </section>

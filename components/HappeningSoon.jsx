@@ -18,7 +18,18 @@ import { useMemo, useRef, useState } from "react";
 |--------------------------------------------------------------------------
 */
 
-function formatDate(date) {
+/*
+ * Returns today's date as YYYY-MM-DD.
+ *
+ * We intentionally use local date parts here instead of:
+ * new Date().toISOString().split("T")[0]
+ *
+ * because toISOString() converts the date to UTC and can shift
+ * the calendar day.
+ */
+function getTodayString() {
+  const date = new Date();
+
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
@@ -26,25 +37,61 @@ function formatDate(date) {
   return `${year}-${month}-${day}`;
 }
 
-function getDateFromOffset(offset) {
-  const date = new Date();
+/*
+ * Convert YYYY-MM-DD into a calendar-safe UTC date.
+ *
+ * This prevents timezone differences from changing the weekday.
+ */
+function dateStringToUTC(dateString) {
+  const [year, month, day] = String(dateString)
+    .split("-")
+    .map(Number);
 
-  date.setHours(0, 0, 0, 0);
-  date.setDate(date.getDate() + offset);
-
-  return date;
+  return new Date(Date.UTC(year, month - 1, day));
 }
 
-function getShortDay(date) {
+/*
+ * Add days to a YYYY-MM-DD date without timezone shifting.
+ */
+function addDays(dateString, offset) {
+  const date = dateStringToUTC(dateString);
+
+  date.setUTCDate(date.getUTCDate() + offset);
+
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+/*
+ * Get short weekday from YYYY-MM-DD.
+ */
+function getShortDay(dateString) {
+  if (!dateString) return "";
+
+  const date = dateStringToUTC(dateString);
+
   return new Intl.DateTimeFormat("en-US", {
     weekday: "short",
+    timeZone: "UTC",
   }).format(date);
 }
 
-function getMonthDay(date) {
+/*
+ * Get full selected date label.
+ */
+function getLongDate(dateString) {
+  if (!dateString) return "";
+
+  const date = dateStringToUTC(dateString);
+
   return new Intl.DateTimeFormat("en-US", {
-    month: "short",
+    weekday: "long",
+    month: "long",
     day: "numeric",
+    timeZone: "UTC",
   }).format(date);
 }
 
@@ -57,17 +104,17 @@ function getMonthDay(date) {
 |--------------------------------------------------------------------------
 */
 
-const today = getDateFromOffset(0);
-const tomorrow = getDateFromOffset(1);
-const day2 = getDateFromOffset(2);
-const day3 = getDateFromOffset(3);
-const day4 = getDateFromOffset(4);
-const day5 = getDateFromOffset(5);
-const day6 = getDateFromOffset(6);
+const today = getTodayString();
+const tomorrow = addDays(today, 1);
+const day2 = addDays(today, 2);
+const day3 = addDays(today, 3);
+const day4 = addDays(today, 4);
+const day5 = addDays(today, 5);
+const day6 = addDays(today, 6);
 
 const events = [
   {
-    date: formatDate(today),
+    date: today,
     title: "Full Moon Beach Music Festival",
     category: "Music & Beach",
     time: "7:00 PM",
@@ -77,7 +124,7 @@ const events = [
       "https://images.unsplash.com/photo-1506157786151-b8491531f063?auto=format&fit=crop&w=1000&q=85",
   },
   {
-    date: formatDate(today),
+    date: today,
     title: "Acoustic Night Live",
     category: "Live Music",
     time: "8:30 PM",
@@ -87,7 +134,7 @@ const events = [
       "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1000&q=85",
   },
   {
-    date: formatDate(today),
+    date: today,
     title: "Sunset Rooftop Sessions",
     category: "Entertainment",
     time: "5:30 PM",
@@ -97,7 +144,7 @@ const events = [
       "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1000&q=85",
   },
   {
-    date: formatDate(today),
+    date: today,
     title: "Kariakoo Food Experience",
     category: "Food",
     time: "6:00 PM",
@@ -108,7 +155,7 @@ const events = [
   },
 
   {
-    date: formatDate(tomorrow),
+    date: tomorrow,
     title: "Dar Food & Culture Night",
     category: "Food & Culture",
     time: "6:00 PM",
@@ -118,7 +165,7 @@ const events = [
       "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1000&q=85",
   },
   {
-    date: formatDate(tomorrow),
+    date: tomorrow,
     title: "Live Jazz Evening",
     category: "Live Music",
     time: "8:00 PM",
@@ -128,7 +175,7 @@ const events = [
       "https://images.unsplash.com/photo-1511192336575-5a79af67a629?auto=format&fit=crop&w=1000&q=85",
   },
   {
-    date: formatDate(tomorrow),
+    date: tomorrow,
     title: "City Night Walk",
     category: "Experience",
     time: "7:00 PM",
@@ -139,7 +186,7 @@ const events = [
   },
 
   {
-    date: formatDate(day2),
+    date: day2,
     title: "Dar Creative Market",
     category: "Shopping",
     time: "10:00 AM",
@@ -149,7 +196,7 @@ const events = [
       "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1000&q=85",
   },
   {
-    date: formatDate(day2),
+    date: day2,
     title: "Sunset Boat Experience",
     category: "Adventure",
     time: "5:00 PM",
@@ -160,7 +207,7 @@ const events = [
   },
 
   {
-    date: formatDate(day3),
+    date: day3,
     title: "Dar Street Food Night",
     category: "Food",
     time: "6:30 PM",
@@ -170,7 +217,7 @@ const events = [
       "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1000&q=85",
   },
   {
-    date: formatDate(day3),
+    date: day3,
     title: "Live Band Friday",
     category: "Live Music",
     time: "8:00 PM",
@@ -181,7 +228,7 @@ const events = [
   },
 
   {
-    date: formatDate(day4),
+    date: day4,
     title: "Weekend Boat Adventure",
     category: "Adventure",
     time: "9:00 AM",
@@ -191,7 +238,7 @@ const events = [
       "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1000&q=85",
   },
   {
-    date: formatDate(day4),
+    date: day4,
     title: "Beach Sunset Party",
     category: "Beach Party",
     time: "4:00 PM",
@@ -202,7 +249,7 @@ const events = [
   },
 
   {
-    date: formatDate(day5),
+    date: day5,
     title: "Sunday Beach Picnic",
     category: "Outdoor",
     time: "11:00 AM",
@@ -213,7 +260,7 @@ const events = [
   },
 
   {
-    date: formatDate(day6),
+    date: day6,
     title: "Dar Culture Experience",
     category: "Culture",
     time: "3:00 PM",
@@ -231,9 +278,7 @@ export default function HappeningSoon() {
   |--------------------------------------------------------------------------
   */
 
-  const [selectedDate, setSelectedDate] = useState(
-    formatDate(today)
-  );
+  const [selectedDate, setSelectedDate] = useState(today);
 
   const sliderRef = useRef(null);
 
@@ -345,7 +390,7 @@ export default function HappeningSoon() {
   */
 
   function isSelected(date) {
-    return selectedDate === formatDate(date);
+    return selectedDate === date;
   }
 
   /*
@@ -354,18 +399,12 @@ export default function HappeningSoon() {
   |--------------------------------------------------------------------------
   */
 
-  const selectedDateObject = new Date(`${selectedDate}T00:00:00`);
-
-  const selectedDateLabel = new Intl.DateTimeFormat("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  }).format(selectedDateObject);
+  const selectedDateLabel = getLongDate(selectedDate);
 
   return (
-    <section className="py-14 sm:py-16 md:py-20">
+    <section className="py-8 sm:py-10 md:py-12">
       {/* Header */}
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4">
         <div>
           <div className="flex items-center gap-2">
             <CalendarDays
@@ -389,7 +428,7 @@ export default function HappeningSoon() {
 
         {/* Date filters */}
         <div className="flex w-full items-center gap-2">
-          {/* Today */}
+          {/* Today / Tomorrow */}
           {quickDates.map((item) => {
             const active = isSelected(item.date);
 
@@ -397,9 +436,7 @@ export default function HappeningSoon() {
               <button
                 key={item.label}
                 type="button"
-                onClick={() =>
-                  changeDate(formatDate(item.date))
-                }
+                onClick={() => changeDate(item.date)}
                 className={`flex min-w-[105px] flex-1 items-center justify-center gap-2 rounded-2xl border px-4 py-3 transition sm:flex-none ${
                   active
                     ? "border-green-500 bg-green-500 text-white shadow-lg shadow-green-100"
@@ -426,7 +463,7 @@ export default function HappeningSoon() {
               type="date"
               value={selectedDate}
               onChange={handleCalendarChange}
-              min={formatDate(today)}
+              min={today}
               className="pointer-events-none absolute h-0 w-0 opacity-0"
               aria-label="Choose event date"
             />
@@ -436,8 +473,7 @@ export default function HappeningSoon() {
               onClick={openCalendar}
               aria-label="Choose another date"
               className={`flex h-[58px] w-[58px] items-center justify-center rounded-2xl border transition ${
-                !isSelected(today) &&
-                !isSelected(tomorrow)
+                !isSelected(today) && !isSelected(tomorrow)
                   ? "border-green-500 bg-green-500 text-white shadow-lg shadow-green-100"
                   : "border-gray-200 bg-white text-gray-600 hover:border-green-300 hover:bg-green-50 hover:text-green-700"
               }`}
@@ -449,7 +485,7 @@ export default function HappeningSoon() {
       </div>
 
       {/* Selected date information */}
-      <div className="mt-7 flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+      <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-gray-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
         <div>
           <p className="text-[10px] font-black uppercase tracking-[0.18em] text-green-600">
             Selected date
@@ -469,7 +505,7 @@ export default function HappeningSoon() {
       </div>
 
       {/* Slider arrows */}
-      <div className="mt-6 flex justify-end gap-2">
+      <div className="mt-4 flex justify-end gap-2">
         <button
           type="button"
           onClick={() => slide("left")}
@@ -493,7 +529,7 @@ export default function HappeningSoon() {
       {filteredEvents.length > 0 ? (
         <div
           ref={sliderRef}
-          className="no-scrollbar mt-4 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 sm:gap-5"
+          className="no-scrollbar mt-4 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 sm:gap-5"
         >
           {filteredEvents.map((event) => (
             <article
@@ -552,7 +588,7 @@ export default function HappeningSoon() {
         </div>
       ) : (
         /* No events */
-        <div className="mt-4 rounded-[26px] border border-dashed border-gray-300 bg-white px-6 py-14 text-center">
+        <div className="mt-4 rounded-[26px] border border-dashed border-gray-300 bg-white px-6 py-10 text-center">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100 text-gray-400">
             <CalendarDays size={24} />
           </div>
@@ -568,7 +604,7 @@ export default function HappeningSoon() {
 
           <button
             type="button"
-            onClick={() => changeDate(formatDate(today))}
+            onClick={() => changeDate(today)}
             className="mt-5 rounded-xl bg-gray-950 px-5 py-3 text-sm font-black text-white transition hover:bg-green-600"
           >
             Back to today
@@ -578,7 +614,7 @@ export default function HappeningSoon() {
 
       {/* Helper */}
       {filteredEvents.length > 0 && (
-        <p className="mt-1 text-center text-[11px] text-gray-400">
+        <p className="mt-0.5 text-center text-[11px] text-gray-400">
           Swipe or use the arrows to see more events
         </p>
       )}

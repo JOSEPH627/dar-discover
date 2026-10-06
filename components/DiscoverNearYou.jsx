@@ -1,269 +1,578 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import {
-  Heart,
-  Navigation,
-  Star,
-  ChevronLeft,
-  ChevronRight,
+  ArrowLeft,
   ArrowRight,
+  LocateFixed,
+  MapPin,
+  Search,
+  Star,
 } from "lucide-react";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { getCurrentLocation } from "@/lib/location";
 
-const places = [
-  {
-    name: "Sunset Beach Experience",
-    category: "Beaches",
-    categoryLabel: "Beach & Water",
-    distance: "2.4 km",
-    rating: "4.8",
-    price: "TSh 25,000",
-    image:
-      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=85",
-  },
-  {
-    name: "Mbudya Marine Reserve",
-    category: "Beaches",
-    categoryLabel: "Islands & Snorkeling",
-    distance: "5.1 km",
-    rating: "4.9",
-    price: "TSh 35,000",
-    image:
-      "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1000&q=85",
-  },
-  {
-    name: "Slipway Waterfront Dining",
-    category: "Food",
-    categoryLabel: "Food & Lounge",
-    distance: "1.8 km",
-    rating: "4.7",
-    price: "TSh 40,000",
-    image:
-      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1000&q=85",
-  },
-  {
-    name: "Kambako Beach Resort",
-    category: "Stays",
-    categoryLabel: "Resorts & Stays",
-    distance: "8.2 km",
-    rating: "4.6",
-    price: "TSh 60,000",
-    image:
-      "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=85",
-  },
-  {
-    name: "Coco Beach Sunset",
-    category: "Beaches",
-    categoryLabel: "Beach & Relax",
-    distance: "3.7 km",
-    rating: "4.8",
-    price: "TSh 15,000",
-    image:
-      "https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=1000&q=85",
-  },
-  {
-    name: "Masaki Food Street",
-    category: "Food",
-    categoryLabel: "Food & Dining",
-    distance: "4.2 km",
-    rating: "4.7",
-    price: "TSh 20,000",
-    image:
-      "https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=1000&q=85",
-  },
-  {
-    name: "Dar City Live Night",
-    category: "Events",
-    categoryLabel: "Live Event",
-    distance: "3.1 km",
-    rating: "4.8",
-    price: "TSh 20,000",
-    image:
-      "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1000&q=85",
-  },
-  {
-    name: "Dar Adventure Experience",
-    category: "Experiences",
-    categoryLabel: "Adventure",
-    distance: "6.5 km",
-    rating: "4.9",
-    price: "TSh 45,000",
-    image:
-      "https://images.unsplash.com/photo-1530789253388-582c481c54b0?auto=format&fit=crop&w=1000&q=85",
-  },
+const CATEGORY_OPTIONS = [
+  "All",
+  "Beaches",
+  "Food",
+  "Events",
+  "Experiences",
+  "Stays",
+  "Sports",
+  "Gaming",
+  "Nightlife",
 ];
 
 export default function DiscoverNearYou() {
-  const sliderRef = useRef(null);
-  const [saved, setSaved] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [places, setPlaces] = useState([]);
+  const [location, setLocation] = useState(null);
+
+  const [selectedCategory, setSelectedCategory] =
+    useState("All");
+
+  const [status, setStatus] = useState("idle");
+  const [error, setError] = useState("");
+
+  const [search, setSearch] = useState("");
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  async function loadNearbyPlaces(
+    currentLocation,
+    category = "All"
+  ) {
+    try {
+      setStatus("loading");
+      setError("");
+
+      const params = new URLSearchParams();
+
+      params.set(
+        "latitude",
+        String(currentLocation.latitude)
+      );
+
+      params.set(
+        "longitude",
+        String(currentLocation.longitude)
+      );
+
+      params.set("radius", "20");
+
+      if (category !== "All") {
+        params.set("category", category);
+      }
+
+      const response = await fetch(
+        `/api/places/nearby?${params.toString()}`,
+        {
+          method: "GET",
+          cache: "no-store",
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.message ||
+            "Unable to load nearby places."
+        );
+      }
+
+      setPlaces(
+        Array.isArray(data.places)
+          ? data.places
+          : []
+      );
+
+      setCurrentIndex(0);
+      setStatus("success");
+    } catch (err) {
+      console.error(
+        "Nearby places error:",
+        err
+      );
+
+      setPlaces([]);
+      setStatus("error");
+
+      setError(
+        err?.message ||
+          "Unable to load nearby places."
+      );
+    }
+  }
+
+  async function handleGetLocation() {
+    try {
+      setStatus("loading");
+      setError("");
+
+      const currentLocation =
+        await getCurrentLocation();
+
+      setLocation(currentLocation);
+
+      await loadNearbyPlaces(
+        currentLocation,
+        selectedCategory
+      );
+    } catch (err) {
+      console.error(
+        "Location error:",
+        err
+      );
+
+      setPlaces([]);
+      setStatus("error");
+
+      setError(
+        err?.message ||
+          "Unable to determine your location."
+      );
+    }
+  }
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const category = params.get("category");
-
-    if (category) {
-      setSelectedCategory(category);
-    }
+    handleGetLocation();
   }, []);
 
-  const filteredPlaces = useMemo(() => {
-    if (!selectedCategory) return places;
+  async function handleCategoryChange(
+    category
+  ) {
+    setSelectedCategory(category);
 
-    return places.filter(
-      (place) => place.category === selectedCategory
+    if (!location) {
+      return;
+    }
+
+    await loadNearbyPlaces(
+      location,
+      category
     );
-  }, [selectedCategory]);
+  }
 
-  function slide(direction) {
-    if (!sliderRef.current) return;
+  const visiblePlaces = useMemo(() => {
+    const query =
+      search.trim().toLowerCase();
 
-    sliderRef.current.scrollBy({
-      left: direction === "left" ? -390 : 390,
-      behavior: "smooth",
+    if (!query) {
+      return places;
+    }
+
+    return places.filter((place) => {
+      const title =
+        place.title?.toLowerCase() || "";
+
+      const category =
+        place.category?.toLowerCase() || "";
+
+      const locationName =
+        place.location?.toLowerCase() || "";
+
+      const description =
+        place.description?.toLowerCase() || "";
+
+      return (
+        title.includes(query) ||
+        category.includes(query) ||
+        locationName.includes(query) ||
+        description.includes(query)
+      );
+    });
+  }, [places, search]);
+
+  function handlePrevious() {
+    if (visiblePlaces.length === 0) {
+      return;
+    }
+
+    setCurrentIndex((current) => {
+      if (current <= 0) {
+        return visiblePlaces.length - 1;
+      }
+
+      return current - 1;
     });
   }
 
-  function toggleSaved(name) {
-    setSaved((current) =>
-      current.includes(name)
-        ? current.filter((item) => item !== name)
-        : [...current, name]
-    );
+  function handleNext() {
+    if (visiblePlaces.length === 0) {
+      return;
+    }
+
+    setCurrentIndex((current) => {
+      if (current >= visiblePlaces.length - 1) {
+        return 0;
+      }
+
+      return current + 1;
+    });
+  }
+
+  function formatPrice(price) {
+    if (
+      price === null ||
+      price === undefined
+    ) {
+      return "Price on request";
+    }
+
+    return `TSh ${Number(
+      price
+    ).toLocaleString("en-TZ")}`;
+  }
+
+  function openPlace(place) {
+    if (!place?.id) {
+      return;
+    }
+
+    window.location.href =
+      `/places/${place.id}`;
   }
 
   return (
-    <section id="near-you" className="overflow-hidden py-14 sm:py-16 md:py-20">
+    <section
+      id="near-you"
+      className="overflow-hidden bg-[#f7f8f6] py-10 sm:py-12 md:py-16"
+    >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
-
-        <div className="flex items-end justify-between gap-4">
+        {/* HEADER */}
+        <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
-            <div className="flex items-center gap-2">
-              <Navigation size={15} className="text-green-600" />
-
-              <p className="text-[11px] font-black uppercase tracking-[0.22em] text-green-600">
-                Near you
-              </p>
-            </div>
+            <p className="text-[11px] font-black uppercase tracking-[0.22em] text-green-600">
+              Near You
+            </p>
 
             <h2 className="mt-2 text-2xl font-black tracking-tight text-gray-950 sm:text-3xl md:text-4xl">
-              {selectedCategory
-                ? `${selectedCategory} near you`
-                : "Discover near you"}
+              Discover near you
             </h2>
 
-            <p className="mt-2 text-sm text-gray-500">
-              {selectedCategory
-                ? `Explore ${selectedCategory.toLowerCase()} around Dar es Salaam.`
-                : "Great places to explore around Dar es Salaam."}
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-500">
+              Discover real places and experiences
+              around your current location.
             </p>
           </div>
 
-          <div className="flex shrink-0 gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
-              onClick={() => slide("left")}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm hover:border-green-300 hover:bg-green-50 hover:text-green-700 sm:h-10 sm:w-10"
+              onClick={handleGetLocation}
+              disabled={status === "loading"}
+              className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-xs font-black text-gray-800 shadow-sm transition hover:border-green-200 hover:bg-green-50 hover:text-green-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <ChevronLeft size={17} />
+              <LocateFixed
+                size={15}
+                className={
+                  status === "loading"
+                    ? "animate-pulse"
+                    : ""
+                }
+              />
+
+              {status === "loading"
+                ? "Finding you..."
+                : "Near me"}
             </button>
 
-            <button
-              type="button"
-              onClick={() => slide("right")}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 bg-white shadow-sm hover:border-green-300 hover:bg-green-50 hover:text-green-700 sm:h-10 sm:w-10"
-            >
-              <ChevronRight size={17} />
-            </button>
+            <div className="relative">
+              <Search
+                size={15}
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+
+              <input
+                type="search"
+                value={search}
+                onChange={(event) =>
+                  setSearch(
+                    event.target.value
+                  )
+                }
+                placeholder="Search places"
+                className="h-10 w-full rounded-xl border border-gray-200 bg-white pl-9 pr-3 text-xs font-medium text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-green-400 focus:ring-2 focus:ring-green-100 sm:w-48"
+              />
+            </div>
           </div>
         </div>
 
-        <div
-          ref={sliderRef}
-          className="no-scrollbar mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 sm:gap-5"
-        >
-          {filteredPlaces.map((place) => (
-            <article
-              key={place.name}
-              className="group min-w-[290px] snap-start overflow-hidden rounded-[26px] border border-gray-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl sm:min-w-[325px] md:min-w-[350px]"
-            >
-              <div className="relative h-52 overflow-hidden">
-                <img
-                  src={place.image}
-                  alt={place.name}
-                  className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
-                />
+        {/* CATEGORY FILTER */}
+        <div className="mt-6 overflow-x-auto pb-1">
+          <div className="flex min-w-max gap-2">
+            {CATEGORY_OPTIONS.map(
+              (category) => {
+                const active =
+                  selectedCategory ===
+                  category;
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent" />
-
-                <button
-                  type="button"
-                  onClick={() => toggleSaved(place.name)}
-                  className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow-lg backdrop-blur"
-                >
-                  <Heart
-                    size={18}
-                    fill={
-                      saved.includes(place.name)
-                        ? "currentColor"
-                        : "none"
+                return (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() =>
+                      handleCategoryChange(
+                        category
+                      )
                     }
-                    className={
-                      saved.includes(place.name)
-                        ? "text-red-500"
-                        : ""
-                    }
-                  />
-                </button>
+                    className={`rounded-full px-4 py-2.5 text-xs font-black transition ${
+                      active
+                        ? "bg-green-600 text-white shadow-md shadow-green-600/20"
+                        : "border border-gray-200 bg-white text-gray-600 hover:border-green-200 hover:bg-green-50 hover:text-green-700"
+                    }`}
+                  >
+                    {category}
+                  </button>
+                );
+              }
+            )}
+          </div>
+        </div>
 
-                <div className="absolute bottom-4 left-4 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold text-gray-900">
-                  {place.categoryLabel}
-                </div>
+        {/* LOCATION INFO */}
+        {location && (
+          <div className="mt-5 flex items-center gap-2 text-xs text-gray-500">
+            <MapPin
+              size={14}
+              className="text-green-600"
+            />
+
+            <span>
+              Showing places within 20 km
+              of your current location
+            </span>
+          </div>
+        )}
+
+        {/* ERROR */}
+        {status === "error" && (
+          <div className="mt-6 rounded-2xl border border-orange-100 bg-orange-50 p-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-black text-gray-900">
+                  Unable to load nearby places
+                </p>
+
+                <p className="mt-1 text-xs leading-5 text-gray-600">
+                  {error}
+                </p>
               </div>
 
-              <div className="p-5">
-                <h3 className="text-lg font-black text-gray-950">
-                  {place.name}
-                </h3>
+              <button
+                type="button"
+                onClick={handleGetLocation}
+                className="w-fit rounded-xl bg-gray-950 px-4 py-2.5 text-xs font-black text-white transition hover:bg-green-600"
+              >
+                Try again
+              </button>
+            </div>
+          </div>
+        )}
 
-                <div className="mt-3 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 text-sm text-gray-500">
-                    <Navigation size={14} />
-                    {place.distance}
-                  </span>
+        {/* LOADING */}
+        {status === "loading" && (
+          <div className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {Array.from({
+              length: 4,
+            }).map((_, index) => (
+              <div
+                key={index}
+                className="overflow-hidden rounded-[24px] bg-white shadow-sm ring-1 ring-gray-100"
+              >
+                <div className="h-48 animate-pulse bg-gray-200" />
 
-                  <span className="flex items-center gap-1 text-sm font-bold">
-                    <Star
-                      size={14}
-                      fill="currentColor"
-                      className="text-yellow-400"
-                    />
-                    {place.rating}
-                  </span>
+                <div className="space-y-3 p-4">
+                  <div className="h-3 w-24 animate-pulse rounded bg-gray-200" />
+
+                  <div className="h-5 w-4/5 animate-pulse rounded bg-gray-200" />
+
+                  <div className="h-3 w-1/2 animate-pulse rounded bg-gray-200" />
                 </div>
+              </div>
+            ))}
+          </div>
+        )}
 
-                <div className="mt-5 flex items-center justify-between border-t border-gray-100 pt-4">
-                  <span className="font-black text-green-600">
-                    {place.price}
+        {/* EMPTY */}
+        {status === "success" &&
+          visiblePlaces.length === 0 && (
+            <div className="mt-7 rounded-[28px] border border-dashed border-gray-300 bg-white px-6 py-12 text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-green-50 text-green-600">
+                <MapPin size={22} />
+              </div>
+
+              <h3 className="mt-4 text-lg font-black text-gray-950">
+                No places found
+              </h3>
+
+              <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-gray-500">
+                There are currently no active
+                places matching this search or
+                category within 20 km of your
+                location.
+              </p>
+            </div>
+          )}
+
+        {/* REAL DATABASE RESULTS */}
+        {status === "success" &&
+          visiblePlaces.length > 0 && (
+            <div className="relative mt-7">
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                {visiblePlaces
+                  .slice(0, 8)
+                  .map((place) => (
+                    <article
+                      key={place.id}
+                      className="group overflow-hidden rounded-[24px] bg-white shadow-sm ring-1 ring-gray-100 transition duration-300 hover:-translate-y-1 hover:shadow-xl"
+                    >
+                      <div className="relative h-48 overflow-hidden bg-gray-100">
+                        {place.image ? (
+                          <img
+                            src={place.image}
+                            alt={place.title}
+                            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="flex h-full items-center justify-center bg-gradient-to-br from-green-50 to-gray-100">
+                            <MapPin
+                              size={28}
+                              className="text-green-500"
+                            />
+                          </div>
+                        )}
+
+                        <div className="absolute left-3 top-3 rounded-full bg-white/95 px-2.5 py-1.5 text-[10px] font-black text-gray-800 shadow-sm backdrop-blur">
+                          {place.category}
+                        </div>
+
+                        <div className="absolute bottom-3 left-3 rounded-full bg-gray-950/90 px-2.5 py-1.5 text-[10px] font-black text-white backdrop-blur">
+                          {place.distance} km away
+                        </div>
+                      </div>
+
+                      <div className="p-4">
+                        <h3 className="line-clamp-1 text-base font-black text-gray-950">
+                          {place.title}
+                        </h3>
+
+                        <div className="mt-2 flex items-center gap-2 text-xs text-gray-500">
+                          <MapPin
+                            size={13}
+                            className="shrink-0 text-green-600"
+                          />
+
+                          <span className="line-clamp-1">
+                            {place.location}
+                          </span>
+                        </div>
+
+                        <div className="mt-3 flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-1">
+                            <Star
+                              size={14}
+                              className="fill-yellow-400 text-yellow-400"
+                            />
+
+                            <span className="text-xs font-black text-gray-800">
+                              {Number(
+                                place.rating || 0
+                              ).toFixed(1)}
+                            </span>
+
+                            <span className="text-[10px] text-gray-400">
+                              (
+                              {
+                                place.reviewCount
+                              }
+                              )
+                            </span>
+                          </div>
+
+                          <span className="text-xs font-black text-green-700">
+                            {formatPrice(
+                              place.price
+                            )}
+                          </span>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            openPlace(
+                              place
+                            )
+                          }
+                          className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gray-950 px-4 py-3 text-xs font-black text-white transition hover:bg-green-600"
+                        >
+                          Explore
+                          <ArrowRight
+                            size={14}
+                          />
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+              </div>
+
+              {/* NAVIGATION */}
+              {visiblePlaces.length > 4 && (
+                <div className="mt-6 flex items-center justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={
+                      handlePrevious
+                    }
+                    aria-label="Previous places"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-700 shadow-sm transition hover:border-green-200 hover:bg-green-50 hover:text-green-700"
+                  >
+                    <ArrowLeft
+                      size={16}
+                    />
+                  </button>
+
+                  <span className="px-3 text-xs font-bold text-gray-500">
+                    {Math.min(
+                      currentIndex + 1,
+                      visiblePlaces.length
+                    )}{" "}
+                    /{" "}
+                    {
+                      visiblePlaces.length
+                    }
                   </span>
 
                   <button
                     type="button"
-                    className="flex items-center gap-1 text-sm font-bold text-gray-600 hover:text-green-600"
+                    onClick={handleNext}
+                    aria-label="Next places"
+                    className="flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-700 shadow-sm transition hover:border-green-200 hover:bg-green-50 hover:text-green-700"
                   >
-                    Explore
-                    <ArrowRight size={15} />
+                    <ArrowRight
+                      size={16}
+                    />
                   </button>
                 </div>
-              </div>
-            </article>
-          ))}
-        </div>
+              )}
+            </div>
+          )}
 
-        <p className="mt-1 text-center text-[11px] text-gray-400">
-          Swipe or use the arrows to see more
-        </p>
+        {/* NO LOCATION YET */}
+        {status === "idle" &&
+          !location && (
+            <div className="mt-7 rounded-[28px] bg-white p-8 text-center shadow-sm ring-1 ring-gray-100">
+              <LocateFixed
+                size={26}
+                className="mx-auto text-green-600"
+              />
+
+              <p className="mt-3 text-sm font-black text-gray-900">
+                Finding places near you...
+              </p>
+            </div>
+          )}
       </div>
     </section>
   );

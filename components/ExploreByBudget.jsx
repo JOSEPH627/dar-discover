@@ -11,7 +11,8 @@ import { useState } from "react";
 const budgets = [
   {
     title: "Under TSh 10K",
-    description: "Affordable places and experiences for every day.",
+    description:
+      "Affordable places and experiences for every day.",
     range: "Below 10,000",
     color: "from-green-50 to-emerald-100",
     iconBg: "bg-green-100",
@@ -19,7 +20,8 @@ const budgets = [
   },
   {
     title: "TSh 10K – 30K",
-    description: "Great experiences without spending too much.",
+    description:
+      "Great experiences without spending too much.",
     range: "10,000 – 30,000",
     color: "from-blue-50 to-cyan-100",
     iconBg: "bg-blue-100",
@@ -27,7 +29,8 @@ const budgets = [
   },
   {
     title: "TSh 30K – 50K",
-    description: "Premium experiences worth treating yourself to.",
+    description:
+      "Premium experiences worth treating yourself to.",
     range: "30,000 – 50,000",
     color: "from-purple-50 to-violet-100",
     iconBg: "bg-purple-100",
@@ -35,7 +38,8 @@ const budgets = [
   },
   {
     title: "TSh 50K+",
-    description: "Luxury stays, adventures and unforgettable escapes.",
+    description:
+      "Luxury stays, adventures and unforgettable escapes.",
     range: "50,000+",
     color: "from-orange-50 to-amber-100",
     iconBg: "bg-orange-100",
@@ -51,9 +55,9 @@ export default function ExploreByBudget() {
   }
 
   return (
-    <section className="py-14 sm:py-16 md:py-20">
+    <section className="py-8 sm:py-10 md:py-12">
       {/* Heading */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <div className="flex items-center gap-2">
             <Wallet
@@ -76,6 +80,7 @@ export default function ExploreByBudget() {
           </p>
         </div>
 
+        {/* Clear selection */}
         {activeBudget !== null && (
           <button
             type="button"
@@ -88,7 +93,7 @@ export default function ExploreByBudget() {
       </div>
 
       {/* Budget cards */}
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {budgets.map((budget, index) => {
           const activeCard = activeBudget === index;
 
@@ -133,7 +138,7 @@ export default function ExploreByBudget() {
               </div>
 
               {/* Content */}
-              <div className="relative mt-6">
+              <div className="relative mt-5">
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="text-lg font-black text-gray-950">
                     {budget.title}
@@ -141,7 +146,10 @@ export default function ExploreByBudget() {
 
                   {activeCard && (
                     <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-600 text-white">
-                      <Check size={14} strokeWidth={3} />
+                      <Check
+                        size={14}
+                        strokeWidth={3}
+                      />
                     </span>
                   )}
                 </div>
@@ -151,7 +159,7 @@ export default function ExploreByBudget() {
                 </p>
 
                 {/* Price range */}
-                <div className="mt-5">
+                <div className="mt-4">
                   <span
                     className={`inline-flex rounded-full px-3 py-1.5 text-[11px] font-black ${
                       activeCard
@@ -165,7 +173,7 @@ export default function ExploreByBudget() {
 
                 {/* Explore */}
                 <div
-                  className={`mt-6 flex items-center gap-2 text-sm font-black transition ${
+                  className={`mt-5 flex items-center gap-2 text-sm font-black transition ${
                     activeCard
                       ? "text-green-700"
                       : "text-gray-600 group-hover:text-green-600"
@@ -185,7 +193,7 @@ export default function ExploreByBudget() {
       </div>
 
       {/* Helper text */}
-      <p className="mt-5 text-center text-[11px] font-medium text-gray-400">
+      <p className="mt-1 text-center text-[11px] font-medium text-gray-400">
         Choose a budget to explore experiences within your range
       </p>
     </section>

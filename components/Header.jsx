@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Menu, X } from "lucide-react";
@@ -21,7 +20,6 @@ export default function Header() {
               LOGO
           ========================== */}
           <div
-        
             className="flex items-center gap-3"
             aria-label="DAR DISCOVER Home"
           >
@@ -35,7 +33,7 @@ export default function Header() {
                 DISCOVER
               </span>
             </div>
-          </div>  
+          </div>
 
           {/* =========================
               DESKTOP NAV
@@ -43,7 +41,7 @@ export default function Header() {
           <nav className="hidden items-center md:flex">
 
             <a
-              href="/sign-in"
+              href="/user/sign-in"
               className="rounded-xl px-5 py-2.5 text-sm font-bold text-gray-700 transition duration-200 hover:bg-gray-100 hover:text-gray-950"
             >
               Sign in
@@ -79,7 +77,7 @@ export default function Header() {
             <div className="mx-auto max-w-7xl">
 
               <a
-                href="/sign-in"
+                href="/user/sign-in"
                 onClick={() => setMenuOpen(false)}
                 className="block rounded-xl px-4 py-3 text-sm font-bold text-gray-700 transition hover:bg-gray-50 hover:text-gray-950"
               >
@@ -98,8 +96,10 @@ export default function Header() {
           Prevents page content from
           going underneath the fixed header
       ========================== */}
-      <div className="h-[72px] w-full" aria-hidden="true" />
+      <div
+        className="h-[72px] w-full"
+        aria-hidden="true"
+      />
     </>
   );
 }
-

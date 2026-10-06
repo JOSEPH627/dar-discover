@@ -83,7 +83,7 @@ export default function Categories() {
   }
 
   return (
-    <section className="overflow-hidden bg-white py-14 sm:py-16 md:py-20">
+    <section className="overflow-hidden bg-white py-8 sm:py-10 md:py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 md:px-8">
 
         <div className="flex items-end justify-between gap-4">
@@ -102,7 +102,6 @@ export default function Categories() {
             </p>
           </div>
 
-          {/* ALWAYS VISIBLE */}
           <div className="flex shrink-0 gap-2">
             <button
               type="button"
@@ -126,7 +125,7 @@ export default function Categories() {
 
         <div
           ref={sliderRef}
-          className="no-scrollbar mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 sm:gap-5"
+          className="no-scrollbar mt-5 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 sm:gap-5"
         >
           {categories.map((category) => {
             const Icon = category.icon;

@@ -21,3 +21,86 @@ body {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+
+/* =========================================
+   DAR DISCOVER - USER MAP LOCATION
+   ========================================= */
+
+.dar-user-location {
+  background: transparent !important;
+  border: none !important;
+}
+
+.dar-user-location-wrapper {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dar-user-location-pulse {
+  position: absolute;
+  width: 34px;
+  height: 34px;
+  border-radius: 9999px;
+  background: rgba(34, 197, 94, 0.25);
+  animation: dar-location-pulse 2s ease-out infinite;
+}
+
+.dar-user-location-dot {
+  position: relative;
+  width: 15px;
+  height: 15px;
+  border-radius: 9999px;
+  background: #16a34a;
+  border: 3px solid #ffffff;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(22, 163, 74, 0.15);
+}
+
+@keyframes dar-location-pulse {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.8;
+  }
+
+  70% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+
+/* =========================================
+   DAR DISCOVER - PLACE MARKERS
+   ========================================= */
+
+.dar-place-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+.dar-place-marker-wrapper {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dar-place-marker-pin {
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: #111827;
+  border: 3px solid #ffffff;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.25);
+}

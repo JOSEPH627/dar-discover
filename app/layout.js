@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="sw">
+     <html lang="en" data-scroll-behavior="smooth">
       <body>{children}</body>
     </html>
   );
